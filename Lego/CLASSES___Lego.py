@@ -17,32 +17,32 @@ class Piece:
         self.backward_to_keys = set(backwards)
         self.backwards_to_from = {}
         if forwards:
-            for forward_to_key, lambda_and_arg_keys_and_forward_from_keys in forwards.items():
+            for forward_to_key, lambda_and_arg_keys_and_forward_from_keys in list(forwards.items()):
                 forward_from_keys = set(lambda_and_arg_keys_and_forward_from_keys[1].values())
                 self.forward_from_keys.update(forward_from_keys)
                 self.forwards_to_from[forward_to_key] = forward_from_keys
         if backwards:
-            for backward_to_key, lambda_and_arg_keys_and_backward_from_keys in backwards.items():
+            for backward_to_key, lambda_and_arg_keys_and_backward_from_keys in list(backwards.items()):
                 backward_from_keys = set(lambda_and_arg_keys_and_backward_from_keys[1].values())
                 self.backward_from_keys.update(backward_from_keys)
                 self.backwards_to_from[backward_to_key] = backward_from_keys
 
     def install(self, change_keys={}, change_vars={}):
         forwards = {}
-        for forward_to_key, forward_lambda_and_arg_keys_and_from_keys in self.forwards.items():
+        for forward_to_key, forward_lambda_and_arg_keys_and_from_keys in list(self.forwards.items()):
             new_forward_to_key = change_piece_key_or_var_in_piece_key(forward_to_key, change_keys, change_vars)
             forward_lambda, forward_arg_keys_and_from_keys =\
                 deepcopy(forward_lambda_and_arg_keys_and_from_keys)   # just to be careful #
-            for forward_arg_key, forward_from_key in forward_arg_keys_and_from_keys.items():
+            for forward_arg_key, forward_from_key in list(forward_arg_keys_and_from_keys.items()):
                 forward_arg_keys_and_from_keys[forward_arg_key] =\
                     change_piece_key_or_var_in_piece_key(forward_from_key, change_keys, change_vars)
             forwards[new_forward_to_key] = [forward_lambda, forward_arg_keys_and_from_keys]
         backwards = {}
-        for backward_to_key, backward_lambda_and_arg_keys_and_from_keys in self.backwards.items():
+        for backward_to_key, backward_lambda_and_arg_keys_and_from_keys in list(self.backwards.items()):
             new_backward_to_key = change_piece_key_or_var_in_piece_key(backward_to_key, change_keys, change_vars)
             backward_lambda, backward_arg_keys_and_from_keys =\
                 deepcopy(backward_lambda_and_arg_keys_and_from_keys)   # just to be careful #
-            for backward_arg_key, backward_from_key in backward_arg_keys_and_from_keys.items():
+            for backward_arg_key, backward_from_key in list(backward_arg_keys_and_from_keys.items()):
                 backward_arg_keys_and_from_keys[backward_arg_key] =\
                     change_piece_key_or_var_in_piece_key(backward_from_key, change_keys, change_vars)
             backwards[new_backward_to_key] = [backward_lambda, backward_arg_keys_and_from_keys]
@@ -60,7 +60,7 @@ class Piece:
             for forward_to_key in forward_to_keys:
                 forward_lambda, forward_arg_keys_and_from_keys = self.forwards[forward_to_key]
                 forward_args = {}
-                for forward_arg_key, forward_from_key in forward_arg_keys_and_from_keys.items():
+                for forward_arg_key, forward_from_key in list(forward_arg_keys_and_from_keys.items()):
                     if isinstance(forward_from_key, tuple):
                         var, index = forward_from_key
                         if var in dict_object:
@@ -79,15 +79,15 @@ class Piece:
         if backwards:
             d_key, backward_to_keys = backwards
             if backward_to_keys:
-                list1 = list(map(lambda k: ('DOVERD', k), backward_to_keys))
-                list2 = list(map(lambda k: ('DOVERD', d_key, k), backward_to_keys))
+                list1 = list([('DOVERD', k) for k in backward_to_keys])
+                list2 = list([('DOVERD', d_key, k) for k in backward_to_keys])
                 backward_to_keys = set(list1 + list2).intersection(self.backward_to_keys)
             else:
                 backward_to_keys = self.backward_to_keys
             for backward_to_key in backward_to_keys:
                 backward_lambda, backward_arg_keys_and_from_keys = self.backwards[backward_to_key]
                 backward_args = {}
-                for backward_arg_key, backward_from_key in backward_arg_keys_and_from_keys.items():
+                for backward_arg_key, backward_from_key in list(backward_arg_keys_and_from_keys.items()):
                     if is_doverd(backward_from_key):
                         over_d_key = backward_from_key[2]
                         if isinstance(over_d_key, tuple):
@@ -131,7 +131,7 @@ class Piece:
 
         def sum_out(in___dict, to_key):
             d = deepcopy(ins___dict)   # just to be careful #
-            for in_key, in_value in in___dict.items():
+            for in_key, in_value in list(in___dict.items()):
                 d[in_key] = in_value
             out = self.run(d)[to_key]
             if isinstance(out, ndarray):
@@ -202,7 +202,7 @@ class Process:
     def install(self, change_vars={}):
         process = deepcopy(self)   # just to be careful #
         from_old_vars_to_new_vars___dict = deepcopy(change_vars)   # just to be careful #
-        for old_var, new_var in change_vars.items():
+        for old_var, new_var in list(change_vars.items()):
             if old_var == new_var:
                 del from_old_vars_to_new_vars___dict[old_var]
         if from_old_vars_to_new_vars___dict:
@@ -254,16 +254,16 @@ class Program:
         self.vars = set()
         self.pieces = pieces
         self.processes = processes
-        for piece in pieces.values():
+        for piece in list(pieces.values()):
             for piece_key in piece.forward_from_keys.union(piece.forward_to_keys):
                 self.vars.add(var_from_forward_piece_key(piece_key))
 
     def install(self, from_old_vars_to_new_vars___dict):
         pieces = {}
-        for piece_name, piece in self.pieces.items():
+        for piece_name, piece in list(self.pieces.items()):
             pieces[piece_name] = piece.install(change_vars=from_old_vars_to_new_vars___dict)
         processes = {}
-        for process_name, process in self.processes.items():
+        for process_name, process in list(self.processes.items()):
             processes[process_name] = process.install(change_vars=from_old_vars_to_new_vars___dict)
         return Program(pieces, processes)
 
@@ -324,7 +324,7 @@ def var_from_forward_piece_key(forward_piece_key):
 def change_piece_key(piece_key, from_old_keys_to_new_keys___dict):
     piece_key = deepcopy(piece_key)   # just to be careful #
     change_keys = deepcopy(from_old_keys_to_new_keys___dict)   # just to be careful #
-    for old_key, new_key in from_old_keys_to_new_keys___dict.items():
+    for old_key, new_key in list(from_old_keys_to_new_keys___dict.items()):
         if old_key == new_key:
             del change_keys[old_key]
     if change_keys:
@@ -348,7 +348,7 @@ def change_piece_key(piece_key, from_old_keys_to_new_keys___dict):
 def change_var_in_piece_key(piece_key, from_old_vars_to_new_vars___dict):
     piece_key = deepcopy(piece_key)   # just to be careful #
     change_vars = deepcopy(from_old_vars_to_new_vars___dict)   # just to be careful #
-    for old_var, new_var in from_old_vars_to_new_vars___dict.items():
+    for old_var, new_var in list(from_old_vars_to_new_vars___dict.items()):
         if old_var == new_var:
             del change_vars[old_var]
     if change_vars:

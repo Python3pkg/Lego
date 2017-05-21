@@ -82,7 +82,7 @@ def PIECE___matrix_product_of_inputs_and_weights(add_bias_column_to_inputs = Tru
         for d in range(len(nums_biases_to_delete)):
             num_biases_to_delete = nums_biases_to_delete[d]
             if num_biases_to_delete > 0:
-                a = delete(a, range(num_biases_to_delete), axis = d)
+                a = delete(a, list(range(num_biases_to_delete)), axis = d)
         return a
 
     forwards = {'outputs':

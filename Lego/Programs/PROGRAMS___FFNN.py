@@ -83,7 +83,7 @@ def PROGRAM___ffnn(nums_nodes, activation_functions, add_biases = [True]):
     # PROCESS: backward_pass
     processes['backward_pass'] = Process([pieces[('d_cost_over_d_signal_to_top_layer')], None,
                                          ['cost', [('signals', num_layers - 2)]]])
-    for l in reversed(range(num_layers - 1)):
+    for l in reversed(list(range(num_layers - 1))):
         processes['backward_pass'].add_steps(
             [pieces[('signals', l)], None, ['cost', [('weights', l)]]])
         if l > 0:
@@ -177,7 +177,7 @@ def PROGRAM___ffnn_unskewed_classification(nums_nodes, activation_functions, add
     # PROCESS: backward_pass
     processes['backward_pass'] = Process([pieces[('d_cost_over_d_signal_to_top_layer')], None,
                                          ['cost', [('signals', num_layers - 2)]]])
-    for l in reversed(range(num_layers - 1)):
+    for l in reversed(list(range(num_layers - 1))):
         processes['backward_pass'].add_steps(
             [pieces[('signals', l)], None, ['cost', [('weights', l)]]])
         if l > 0:
